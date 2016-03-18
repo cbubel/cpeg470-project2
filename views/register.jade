@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1 Register
+  form#registration-form
+    .form-group
+      label Email
+      input.form-control(type="text" ng-model="email" placeholder="Email")
+    .form-group
+      label Password
+      input.form-control(type="password" ng-model="password" placeholder="Password")
+    .form-group
+      button.btn.btn-primary(ng-click="ctrl.register(email, password)") Register
