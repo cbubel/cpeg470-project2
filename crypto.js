@@ -3,9 +3,11 @@ require("browserid-crypto/lib/algs/ds");
 
 var Crypto = function() {
   this.generateKeypair = function(email, resultCallback) {
+    var myself = this;
+    // TODO: Look into why I had to change from 160 to 128
     jwcrypto.generateKeypair({
       algorithm: "DSA",
-      keysize: 160
+      keysize: 128
     }, function(err, keypair) {
       var publicKeyToCertify = keypair.publicKey.serialize();
       var payload = {
@@ -30,7 +32,7 @@ var Crypto = function() {
     var publicKey = jwcrypto.loadPublicKey(package.publicKey);
     jwcrypto.verify(signedObject, publicKey, function(err, payload) {
       if(err === null) resultCallback(true);
-      else return resultCallback(false);
+      else resultCallback(false);
     });
   }
 }

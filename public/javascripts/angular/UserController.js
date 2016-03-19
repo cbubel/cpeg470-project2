@@ -1,8 +1,9 @@
 var appControllers = angular.module('appControllers', []);
 
-appControllers.controller('UserController', ['$scope', '$http', function($scope, $http) {
+appControllers.controller('UserController', ['$scope', '$http', '$location', function($scope, $http, $location) {
   var token = JSON.parse(window.localStorage.getItem("token")) || undefined;
-  var app = this;
+  console.log('token:');
+  console.log(token);
   var scope = $scope;
 
   // TODO: More cleaning? Probably on server
@@ -11,16 +12,15 @@ appControllers.controller('UserController', ['$scope', '$http', function($scope,
     else return true;
   }
 
-  this.register = function(email, password) {
-    if(!validate(email) || !validate(password)) return;
-
-    $http.post('/users/', {email: email, password: password}).
+  var userOp = function(endpoint, payload, form_id, success_message, redirect) {
+    $http.post(endpoint, payload).
     success(function(token_package, status, headers, config) {
       if(status === 200) {
         token = token_package;
         window.localStorage.setItem("token", JSON.stringify(token));
-        document.querySelector("#registration-form").reset();
-        toastr.success("Successfully registered");
+        document.querySelector(form_id).reset();
+        toastr.success(success_message);
+        $location.path(redirect);
       }
     }).
     error(function(data, status, headers, config) {
@@ -33,18 +33,33 @@ appControllers.controller('UserController', ['$scope', '$http', function($scope,
     });
   }
 
-  this.login = function(email, password) {
-    if(!validate(email) || !validate(password)) return;
+  this.register = function(email, password) {
+    if(!validate(email) || !validate(password)) {
+      toastr.error("Invalid input");
+      return;
+    };
+    userOp("/users/", {email: email, password: password}, "#registration-form", "Successfully registered", "/logged-in");
+  }
 
-    $http.post('/users/login', {email: email, password: password}).
-    success(function(token_package, status, headers, config) {
-      if(status === 200) {
-        token = token_package;
-        window.localStorage.setItem("token", token);
-      }
-    }).
-    error(function(data, status, headers, config) {
-      console.log(data);
-    });
+  this.login = function(email, password) {
+    if(!validate(email) || !validate(password)) {
+      toastr.error("Invalid input");
+      return;
+    };
+    userOp("/users/login", {email: email, password: password}, "#login-form", "Successfully logged in", "/logged-in");
+  }
+
+  this.changePassword = function(email, current_password, new_password) {
+    if(!validate(email) || !validate(current_password) || !validate(new_password)) {
+      toastr.error("Invalid input");
+      return;
+    }
+    else if(token === undefined) {
+      toastr.error("You need to be logged in to do that");
+    }
+    else {
+      console.log('sending');
+      userOp("/users/change-password", {token: token, email: email, current_password: current_password, new_password: new_password}, "#change-password-form", "Successfully changed password", "/logged-in");
+    }
   }
 }]);
