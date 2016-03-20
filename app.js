@@ -17,3 +17,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/users', users);
 
 module.exports = app;
+
+// client id
+// 407837324561-tr9losifqa6s2olq4d613o21ft4rhlur.apps.googleusercontent.com
+
+// client secret
+// UDVuilICXV4vmC2qAkUNPMYz

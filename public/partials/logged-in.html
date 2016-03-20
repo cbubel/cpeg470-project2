@@ -1,2 +1,3 @@
 <div ng-include src="'partials/nav.html'"></div>
-<h1>You're logged in</h1>
+<h1 ng-hide="userCtrl.is_google">You're logged in</h1>
+<h1 ng-show="userCtrl.is_google">You're logged in with Google</h1>
