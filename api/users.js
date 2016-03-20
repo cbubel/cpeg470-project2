@@ -6,15 +6,15 @@ var HasherRef = require("../hasher");
 var Hasher = new HasherRef();
 var MongoClient = require('mongodb').MongoClient;
 
-MongoClient.connect("mongodb://localhost:27017/data", function(err, db) {
-  if(err) { return console.dir(err); }
-  var users = db.collection('users');
-
-  users.find().toArray(function(err, items) {
-    console.log(items);
-  });
-
-});
+// MongoClient.connect("mongodb://localhost:27017/data", function(err, db) {
+//   if(err) { return console.dir(err); }
+//   var users = db.collection('users');
+//
+//   users.find().toArray(function(err, items) {
+//     console.log(items);
+//   });
+//
+// });
 
 // Create new user
 // body = {email: "", password: ""}
@@ -94,6 +94,10 @@ router.post('/login', function(req, res, next) {
 
 // Change password
 // body = {email: "", current_password: "", new_password: ""}
+// Check for valid token
+// Check if user exists
+// Check if password matches
+// Update password
 router.post('/change-password', function(req, res, next) {
   var token = req.body.token;
   var email = req.body.email;

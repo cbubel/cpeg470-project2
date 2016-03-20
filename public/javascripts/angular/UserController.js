@@ -1,10 +1,17 @@
 var appControllers = angular.module('appControllers', []);
 
-appControllers.controller('UserController', ['$scope', '$http', '$location', function($scope, $http, $location) {
+appControllers.controller('UserController', ['$scope', '$http', '$location', 'UserService', function($scope, $http, $location, UserService) {
   var token = JSON.parse(window.localStorage.getItem("token")) || undefined;
+  UserService.updateStatus(token !== undefined);
+  this.logged_in = UserService.getLoggedIn();
   console.log('token:');
   console.log(token);
-  var scope = $scope;
+  if(token === undefined) {
+    if($location.$$path === "/logged-in" || $location.$$path === "/change-password") $location.path("/login");
+  }
+  else if($location.$$path !== "/change-password") {
+    $location.path("/logged-in");
+  }
 
   // TODO: More cleaning? Probably on server
   var validate = function(input) {
@@ -16,6 +23,7 @@ appControllers.controller('UserController', ['$scope', '$http', '$location', fun
     $http.post(endpoint, payload).
     success(function(token_package, status, headers, config) {
       if(status === 200) {
+        UserService.updateStatus(true);
         token = token_package;
         window.localStorage.setItem("token", JSON.stringify(token));
         document.querySelector(form_id).reset();
@@ -49,6 +57,14 @@ appControllers.controller('UserController', ['$scope', '$http', '$location', fun
     userOp("/users/login", {email: email, password: password}, "#login-form", "Successfully logged in", "/logged-in");
   }
 
+  this.logout = function() {
+    UserService.updateStatus(false);
+    window.localStorage.removeItem("token");
+    toastr.success("Successfully logged out");
+    $location.path("/login")
+  }
+
+  // TODO: Auto logout if token invalid?
   this.changePassword = function(email, current_password, new_password) {
     if(!validate(email) || !validate(current_password) || !validate(new_password)) {
       toastr.error("Invalid input");
